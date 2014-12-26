@@ -1,0 +1,61 @@
+#include<iostream>
+#include<stdio.h>
+#include<cmath>
+#include<iomanip>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <sstream>
+#include <fstream>
+using namespace std;
+
+
+//返回值为string为除数  int为余数
+pair<string,int> strMod(string x1,int x2)
+{
+	int num=0;
+	string result;
+	for(string::size_type i=0;i<x1.size();i++)
+	{
+		num=num*10+(x1[i]-'0');
+		int tmp=num/2;
+		num=num%x2;
+		result=result+(char)(tmp+'0');
+	}
+	while(1)
+	{
+		if(result.size()==1)
+			break;
+		if(result[0]=='0')
+			result.erase(result.begin());
+		else break;
+	}
+	return make_pair(result,num);
+}
+
+int main()
+{
+	ifstream cin("input");
+	int n;
+	cin>>n;
+	for(int i=0;i<n;i++)
+	{
+		string data;
+		cin>>data;
+		cout<<"Case "<<i+1<<": ";
+		int count=0;
+		for(string::size_type j=0;;j++)
+		{
+			pair<string ,int> tmp=strMod(data,2);
+			data=tmp.first;
+			if(tmp.second==0)
+			{
+				count++;
+			}
+			else break;
+		}
+		cout<<count+1<<endl;
+		if(i!=n-1)
+			cout<<endl;
+	}
+}
