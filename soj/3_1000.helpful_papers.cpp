@@ -21,8 +21,110 @@ typedef vector<Item_t>::iterator Iterator;
 float GetPerTime(Iterator iter){
 	return (float)iter->first/(float)iter->second;
 }
+// int MinCost(AthBooks_t &ath_books){
+// 	int mcost=0;
+// 	int cur_time=0;
+// 	AthBooks_t::iterator iter_athbooks=ath_books.begin();
+// 	vector<Iterator> p_iters;  
+// 	vector<Iterator> end_iters;
+// 	while(iter_athbooks!=ath_books.end()){
+// 		p_iters.push_back(iter_athbooks->begin());
+// 		end_iters.push_back(iter_athbooks->end());
+// 		iter_athbooks++;
+// 	}
+// 
+// 	int end_flag=false;
+// 	while(true){	
+// 		end_flag=true;
+// 		int len=p_iters.size();
+// 		Iterator max_mi_book;
+// 		float max_per_time=0;
+// 		float next_max_per_time=0;
+// 		int max_mi_index;
+// 		/*get the most important book of header ones in each list */
+// 		for(int i=0;i<len;++i){
+// 			if(p_iters[i]==end_iters[i])
+// 				continue;
+// 			float per_time=GetPerTime(p_iters[i]);//(float)(p_iters[i]->first)/(float)(p_iters[i]->second);
+// 
+// 			Iterator next_iter=p_iters[i]+1;
+// 			float next_per_time=0;
+// 			if(per_time==max_per_time){
+// 
+// 				if(next_iter!=end_iters[i] && (next_per_time=GetPerTime(next_iter))>next_max_per_time ){
+// 					next_max_per_time=next_per_time;
+// 
+// 					max_mi_book=p_iters[i];
+// 					max_mi_index=i;
+// 					max_per_time=per_time;
+// 				}
+// 			}
+// 			else if(per_time> max_per_time)
+// 			{
+// 
+// 				max_mi_book=p_iters[i];
+// 				max_mi_index=i;
+// 				max_per_time=per_time;
+// 
+// 				if(next_iter!=end_iters[i])
+// 					next_per_time=GetPerTime(next_iter);
+// 				next_max_per_time=next_per_time;
+// 			}
+// 			end_flag=false;
+// 
+// 		}
+// 		/*calculate the cost of reading and add to sum*/
+// 		if(end_flag)
+// 			break;
+// 		cur_time+=max_mi_book->second;
+// 		mcost+=max_mi_book->first*cur_time;
+// #ifdef _mydebug
+// 		cout<<"current reading book:"<<max_mi_book->first<<" "<<max_mi_book->second<<endl;
+// 		cout<<"cost:+"<<max_mi_book->first<<"*"<<cur_time<<"=="<<max_mi_book->first*cur_time<<"->"<<mcost<<endl;
+// #endif
+// 
+// 		p_iters[max_mi_index]++;	
+// 	}
+// 	return mcost;
+// }
+
+/*brute force method*/
+int min_cost=-1;
+
+int Recurse(vector<Iterator> p_iters,vector<Iterator> end_iters,int cost,int time){
+	/*get the most important book of header ones in each list */
+	bool end_flag=true;
+	int len=p_iters.size();
+	for(int i=0;i<len;++i){
+		if(p_iters[i]==end_iters[i]){
+			continue;
+		}
+		end_flag=false;
+
+		int ncost=cost;
+		int ntime=time;
+		ntime+=p_iters[i]->second;
+		ncost+=(p_iters[i]->first)*ntime;
+		vector<Iterator> np_iters(len);
+		copy(p_iters.begin(),p_iters.end(),np_iters.begin());
+		np_iters[i]++;
+// 		cout<<"ntime:"<<ntime<<"\tncost:"<<ncost<<endl;
+		Recurse(np_iters,end_iters,ncost,ntime);
+	}
+	if(end_flag){
+			if(min_cost<=0)
+				min_cost=cost;
+			else if(cost<min_cost)
+				min_cost=cost;
+#ifdef _mydebug
+ 			cout<<"cost:"<<cost<<"\t min cost:"<<min_cost<<endl;
+ 			cout<<"-------------------"<<endl;
+#endif
+	}
+
+}
 int MinCost(AthBooks_t &ath_books){
-	int mcost=0;
+	// 	int mcost=0;
 	int cur_time=0;
 	AthBooks_t::iterator iter_athbooks=ath_books.begin();
 	vector<Iterator> p_iters;  
@@ -32,66 +134,17 @@ int MinCost(AthBooks_t &ath_books){
 		end_iters.push_back(iter_athbooks->end());
 		iter_athbooks++;
 	}
+	Recurse(p_iters,end_iters,0,0);
 
-	int end_flag=false;
-	while(true){	
-		end_flag=true;
-		int len=p_iters.size();
-		Iterator max_mi_book;
-		float max_per_time=0;
-		float next_max_per_time=0;
-		int max_mi_index;
-		/*get the most important book of header ones in each list */
-		for(int i=0;i<len;++i){
-			if(p_iters[i]==end_iters[i])
-				continue;
-			float per_time=GetPerTime(p_iters[i]);//(float)(p_iters[i]->first)/(float)(p_iters[i]->second);
-
-			Iterator next_iter=p_iters[i]+1;
-			float next_per_time=0;
-			if(per_time==max_per_time){
-
-				if(next_iter!=end_iters[i] && (next_per_time=GetPerTime(next_iter))>next_max_per_time ){
-					next_max_per_time=next_per_time;
-
-					max_mi_book=p_iters[i];
-					max_mi_index=i;
-					max_per_time=per_time;
-				}
-			}
-			else if(per_time> max_per_time)
-			{
-
-				max_mi_book=p_iters[i];
-				max_mi_index=i;
-				max_per_time=per_time;
-
-				if(next_iter!=end_iters[i])
-					next_per_time=GetPerTime(next_iter);
-				next_max_per_time=next_per_time;
-			}
-			end_flag=false;
-
-		}
-		/*calculate the cost of reading and add to sum*/
-		if(end_flag)
-			break;
-		cur_time+=max_mi_book->second;
-		mcost+=max_mi_book->first*cur_time;
-#ifdef _mydebug
-		cout<<"current reading book:"<<max_mi_book->first<<" "<<max_mi_book->second<<endl;
-		cout<<"cost:+"<<max_mi_book->first<<"*"<<cur_time<<"=="<<max_mi_book->first*cur_time<<"->"<<mcost<<endl;
-#endif
-
-		p_iters[max_mi_index]++;	
-	}
-	return mcost;
+	return min_cost;
 }
+
 int  main(int argc ,char **argv){
 #ifdef _mydebug
 	ifstream cin("input");
 #define debug_info "/****read data from file input****/\n"
 #else
+
 #define debug_info ""
 #endif
 
@@ -138,6 +191,4 @@ int  main(int argc ,char **argv){
 		cout<<cost<<endl;
 	}		
 	return 0;
-}
-void GetAthBooks(AthBooks_t &athbooks,vector<Item_t> items){
 }
