@@ -15,7 +15,7 @@ using namespace std;
 
 
 
-static bool global_debug=false;
+static bool global_debug=true;
 
 typedef struct TreeNode{
 	int val;
@@ -33,19 +33,19 @@ class Solution {
                         env_init();
                 }
                 void env_init(){
-					if_debug=false;
+					if_debug=global_debug;
                 }
 
 
 				
-				/*creat binary tree: 输入的节点权值只能是个位数的非负整数*/
+				/*creat binary tree: �����Ľڵ�Ȩֵֻ���Ǹ�λ���ķǸ�����*/
 				void createBT(TreeNode **pp_root, vector<char> bnodes ){
 					int blen=bnodes.size();
 					if(NULL==pp_root|| blen<=0)
 						return;
 
 					stack<TreeNode*> p_st;
-					TreeNode *p;	
+					//TreeNode *p;	
 				
 					int bn_index=0;
 					char val=bnodes[bn_index++];
@@ -77,7 +77,6 @@ class Solution {
 
 				}
 	
-
 				int subSum(TreeNode * root){
 					if(NULL== root)
 						return 0;
@@ -93,7 +92,7 @@ class Solution {
 					if(if_debug)
 						cout<<"cur max sum:"<<max_sum<<endl;
 					
-					//接连子树的路径
+					//����������·��
 					int temp_path_sum=root->val;
 					if(better_sum>0)
 						temp_path_sum+=better_sum;
@@ -102,6 +101,7 @@ class Solution {
 					return temp_path_sum;
 				}
 
+				/*Ѱ����������·��*/
 				int maxPathSum(TreeNode* root) {
 					assert(root!=NULL);
 					
@@ -109,6 +109,38 @@ class Solution {
 					subSum(root);
 					return max_sum;
 				}
+
+
+
+				void visit(TreeNode* p,vector<int> &vc){
+					vc.push_back(p->val);
+				}
+				/*����������*/
+				vector<int> postorderTraversal(TreeNode* root) {
+					vector<int> vc;
+					
+					TreeNode *p=root,*pre_node=NULL;
+					stack<TreeNode*> st;
+					while(NULL!=p || !st.empty()){
+						while(p!=NULL){
+							st.push(p);
+							p=p->left;
+						}
+						
+						if(!st.empty()){
+							p=st.top();
+							if(p->right==NULL || p->right==pre_node){
+								visit(p,vc);
+								st.pop();
+								pre_node=p;
+								p=NULL;
+							}
+							else
+								p=p->right;
+						}
+				}
+				return vc;
+			}
 private:
 	int max_sum;
 	bool if_debug;
@@ -147,9 +179,9 @@ int main(void){
 	ifstream cin("input");
 	
 	string line;
+	int icase=0;
 	while(getline(cin,line)){
-		if(global_debug)
-			cout<<line<<endl;
+
 
 		stringstream ss(line);
 		vector<char> cs;
@@ -161,12 +193,20 @@ int main(void){
 			}
 			cs.push_back(c);
 		}
-
+	
 		TreeNode *root_p=NULL;//=new TreeNode;
 		Solution slt;
 		slt.createBT(&root_p,cs);
-		cout<<slt.maxPathSum(root_p)<<endl;
+		if(global_debug){
+			cout<<"case "<<++icase<<":";
+			copy(cs.begin(),cs.end(),ostream_iterator<char>(cout," "));
+			cout<<endl;
+		}
 
+		//cout<<slt.maxPathSum(root_p)<<endl;
+		vector<int> rt=slt.postorderTraversal(root_p);
+		copy(rt.begin(),rt.end(),ostream_iterator<int>(cout," "));
+		cout<<endl;
 		//deallocate resouce which is in storage of the tree
 
 	}

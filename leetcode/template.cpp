@@ -21,7 +21,17 @@ public:
 };
 
 
-/*function main to debug*/
-int main(int argc,char **argv){
-	return 0;
+#include <iostream>
+#include <cstdio>
+#include <cstring>
+using namespace std;
+
+int main(void){
+        char s[]="123456789";
+        char d[]="123";
+        cout<<"address of s:"<<(void*)s<<",address of d:"<<(void*)d<<endl;
+        strcpy(d,s);
+        printf("%s,\n%s",d,s);
+
 }
+
