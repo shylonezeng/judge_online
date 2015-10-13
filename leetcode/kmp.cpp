@@ -1,74 +1,68 @@
 #include <iostream>
-#include <vector>
-#include <map>
+#include <fstream>
 #include <string>
+#include <vector>
 #include <iterator>
-
 using namespace std;
 
 
+int  *getNext(string pattern);
 
-vector<int> kmp(string pattern ,string src){
-	int pt_len=pattern.length();
-	//简历next数组
-	map<char,int> mmap;
-	
-	for(int i=0;i<pt_len;++i){
-						char key=pattern[i];
 
-		if(0==1){
-			char key=pattern[0];
-			mmap[key]=0;
+const vector<int> kmp(string S,string P){
+	int slen=S.length();
+	int plen=P.length();
+	vector<int> mv;
+	//get next list
+	int *next=getNext(P);
+
+	int pi=0;
+	for(int i=0;i<slen;++i){
+		while(pi>0 && S[i]!=P[pi])
+			pi=next[pi];
+		if (S[i]==P[pi])
+			pi++;
+		if(pi==plen)
+		{
+			mv.push_back(i-plen+1);
+			//cout<<i<<" ";
+			pi=next[pi];   //鍖归厤鍒板悗鍥炲埌
 		}
-		else{
-			int j;
-			for(j=pt_len-1;j>0;j--){
-					string pre_str=pattern.substr(1,j);
-					string post_str=pattern.substr(pt_len-j,j);
-					if(pre_str==post_str)
-					{
-						mmap[key]=j;
-						break;
-					}			
-			}
-			if(0==j)
-				mmap[key]=0;
-		}
-	}
-	vector<int> result;
-	//开始匹配
-	int plen=pattern.length();
-	int slen=src.length();
-	for(int i=0;i<slen;){
-		int ok_count=0;
-		int step=1;  //移动步数
-		
-		int j=1;
-		for(j=0;j<plen;++j){
-			if(pattern[j]==src[i+j])
-				ok_count+=1;
-			else{
-				int step= ok_count-mmap[pattern[j]];
-				break;
-			}
-		}
-		if(plen==j)
-			result.push_back(i);
-		i+=step;
+
 	}
 
-	return  result;
+	return mv;
 }
-int main(void){
-#ifdef _mydebug
-#define dinfo "read data specified file\n"
-    ifstream cin("input");
-#else
-#define dinfo ""
-#endif
-	string  a,b;
-	while(cin>>a>>b){
-		vector<int> rt=kmp(a,b);
-		copy(rt.begin(),rt.end(),ostream_iterator<int>(cout," "));
+
+
+/*compute prefix function*/
+int  *getNext(string pattern){
+	int plen=pattern.length();
+	int *next=new int[plen+1];
+	next[0]=next[1]=0;
+	int pi=0;
+	for(int i=1;i<plen;++i){
+		while(pi>0 && pattern[i]!= pattern[pi])
+			pi=next[pi];
+		if(pattern[i]==pattern[pi])
+			pi++;
+		next[i+1]=pi;
 	}
+	return next;
+}
+
+int main(void){
+	//for debug things
+	ifstream cin("input");
+
+	string t,p;
+	while(cin>>t>>p){
+		vector<int> posv=kmp(t,p);
+		copy(posv.begin(),posv.end(),ostream_iterator<int>(cout," "));
+
+		cout<<endl;
+	}
+	system("pause");
+	
+	return 0;
 }
